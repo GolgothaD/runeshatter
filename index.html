@@ -59,6 +59,16 @@ body.port #padhint{display:none}
 table{width:100%;border-collapse:collapse;font-size:17px}td{padding:6px;border-bottom:1px solid #5e3d1a}td:last-child{text-align:right;font-weight:bold}
 .help{text-align:left;font-size:14px}.help b{color:#ffd77a}
 #logo{width:96px;height:96px;margin:0 auto}
+
+:root{--acc:#a970ff;--accA:#a970ff8c}
+.book{transition:box-shadow 1.2s}.book{box-shadow:0 0 0 2px #2a1708,inset 0 0 0 2px #5e3d1a,0 6px 20px #0008,0 0 16px var(--accA)}
+#bar{background:repeating-linear-gradient(90deg,var(--acc) 0 6px,#ffffff55 6px 7px,var(--acc) 7px 12px);box-shadow:0 0 10px var(--acc)}
+#pips i.on{background:var(--acc);box-shadow:0 0 8px var(--acc)}
+#combo{text-shadow:0 0 10px var(--acc),0 3px 0 #2a0a3a}
+#theme{position:fixed;left:0;right:0;top:9%;text-align:center;pointer-events:none;opacity:0;transform:scale(.9);transition:opacity .5s,transform .8s;font-size:clamp(22px,5vw,40px);font-weight:bold;color:#fff6dc;text-shadow:0 0 14px var(--acc),0 0 30px var(--acc),0 3px 0 #000;letter-spacing:2px;z-index:20;padding:.35em 0;background:linear-gradient(90deg,transparent,#0009 25%,#0009 75%,transparent)}
+#theme small{display:block;font-size:.5em;letter-spacing:6px;color:var(--acc);text-shadow:0 2px 0 #000}
+#theme.on{opacity:1;transform:scale(1)}
+@media (orientation:portrait){#theme{top:15%}}
 </style></head><body>
 <canvas id="bg"></canvas>
 <div id="app">
@@ -102,5 +112,5 @@ table{width:100%;border-collapse:collapse;font-size:17px}td{padding:6px;border-b
  <div class="panel book" id="pSetP"><h2>Settings</h2>
   <button class="btn" id="sSnd">Sound: On</button><button class="btn" id="sMus">Music: On</button><button class="btn" id="sQ">Effects quality: Auto</button><button class="btn" id="sShake">Screen shake: On</button><button class="btn" id="sReset">Reset records</button><button class="btn back">Back</button></div>
 </div>
-<script src="game.js"></script>
+<div id="theme"></div><script src="game.js"></script>
 </body></html>
