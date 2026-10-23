@@ -30,9 +30,18 @@ body.port .val{font-size:22px}
 .ib.off{opacity:.45}
 body.port #btns{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 10px);left:0;right:0}
 #bw{position:relative}
-body.port #bw{margin:auto 0;top:-30px}
+body.port #bw{margin:0}
 #board{cursor:pointer}
 #combo{position:absolute;left:0;right:0;top:38%;text-align:center;font-size:34px;font-weight:bold;color:#fff;pointer-events:none;opacity:0;text-shadow:0 0 8px #c07bff,0 3px 0 #3a0a6a;transition:opacity .2s}
+#book2{width:230px;display:flex;flex-direction:column;gap:6px;font-size:15px}
+#bkH{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #5e3d1a;padding-bottom:4px}#bkLv{color:#fff3cf;font-size:16px}
+#cmb{display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px}#cmbV{font-size:26px;color:#fff3cf;text-shadow:0 0 10px #c07bff}
+#pips{grid-column:1/-1;display:grid;grid-template-columns:repeat(10,1fr);gap:3px}#pips i{height:10px;background:#1a0f08;border:1px solid #6a4a20;transform:rotate(45deg) scale(.7)}
+#pips i.on{background:#a970ff;border-color:#e0c8ff;box-shadow:0 0 8px #a970ff}#pips i.hot{background:#ffb040;border-color:#fff0b0;box-shadow:0 0 8px #ff9a2a}
+.kv{display:flex;justify-content:space-between;color:#d6b97c}.kv b{color:#fff3cf;font-variant-numeric:tabular-nums}
+body.port #book2{width:100%;max-width:520px;display:grid;grid-template-columns:1.3fr 1fr;gap:2px 14px;padding:6px 10px;font-size:13px}
+body.port #bkH{grid-column:1/-1;padding-bottom:2px}body.port #cmb{grid-row:2/5;grid-column:1}body.port #cmbV{font-size:22px}
+body.nob2 #book2{display:none}
 #padhint{font-size:12px;color:#c9a46a;text-align:center;line-height:1.5}
 body.port #padhint{display:none}
 #ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#0b061899;z-index:5;padding:14px}
@@ -65,9 +74,12 @@ table{width:100%;border-collapse:collapse;font-size:17px}td{padding:6px;border-b
   <div class="book" id="padhint">Mouse: drag or click two runes<br>Keys: arrows move · Space grab · Esc pause · H hint<br>Xbox: D-pad/stick move · A grab + direction swap · B cancel · Y hint · Start pause</div>
  </div>
  <div id="bw"><canvas id="board" width="216" height="216"></canvas><div id="combo"></div></div>
+ <div class="book" id="book2"><div id="bkH"><span class="lab">Spellbook</span><span id="bkLvW" class="lab">Level <b id="bkLv">1</b></span></div>
+  <div id="cmb"><span class="lab">Cascade</span><b id="cmbV">×0</b><div id="pips"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+  <div class="kv"><span>Best chain</span><b id="bkBest">×0</b></div><div class="kv"><span id="bkNL">To level 2</span><b id="bkNext">0</b></div><div class="kv"><span>Forged</span><b id="bkMade">0</b></div></div>
 </div>
 <div id="ov" class="show">
- <div class="panel book show" id="pMenu"><canvas id="logo" width="24" height="24"></canvas><h1>RUNESHATTER</h1><div class="sub">Match the runes. Unleash the spells.</div>
+ <div class="panel book show" id="pMenu"><canvas id="logo" width="48" height="48"></canvas><h1>RUNESHATTER</h1><div class="sub">Match the runes. Unleash the spells.</div>
   <button class="btn" id="mCont" style="display:none">Continue<small id="mContS"></small></button>
   <button class="btn" data-mode="classic">Classic<small>Endless levels — runs out of moves, game over</small></button>
   <button class="btn" data-mode="zen">Zen<small>No pressure. Board reshuffles forever</small></button>
@@ -88,7 +100,7 @@ table{width:100%;border-collapse:collapse;font-size:17px}td{padding:6px;border-b
   <button class="btn back">Back</button></div>
  <div class="panel book" id="pScores"><h2>Records</h2><table id="sTab"></table><button class="btn back">Back</button></div>
  <div class="panel book" id="pSetP"><h2>Settings</h2>
-  <button class="btn" id="sSnd">Sound: On</button><button class="btn" id="sMus">Music: On</button><button class="btn" id="sShake">Screen shake: On</button><button class="btn" id="sReset">Reset records</button><button class="btn back">Back</button></div>
+  <button class="btn" id="sSnd">Sound: On</button><button class="btn" id="sMus">Music: On</button><button class="btn" id="sQ">Effects quality: Auto</button><button class="btn" id="sShake">Screen shake: On</button><button class="btn" id="sReset">Reset records</button><button class="btn back">Back</button></div>
 </div>
 <script src="game.js"></script>
 </body></html>
