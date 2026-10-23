@@ -1,0 +1,94 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Runeshatter</title><meta name="theme-color" content="#120a24">
+<meta name="description" content="Runeshatter: a magic match-3 with pixel-art spell effects.">
+<link rel="manifest" href="manifest.json"><link rel="icon" href="icons/favicon-32.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{margin:0;height:100%;overflow:hidden;background:#0b0618;color:#f3e6c4;font-family:"Palatino Linotype","Book Antiqua",Palatino,Georgia,serif;touch-action:none}
+canvas{image-rendering:pixelated;image-rendering:crisp-edges;display:block}
+#bg{position:fixed;inset:0;width:100%;height:100%}
+#app{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;gap:18px;padding:env(safe-area-inset-top) 6px env(safe-area-inset-bottom)}
+body.port #app{flex-direction:column;gap:8px;justify-content:flex-start;padding-top:calc(env(safe-area-inset-top) + 8px)}
+#side{display:flex;flex-direction:column;gap:10px;width:280px}
+body.port #side{width:100%;max-width:520px;gap:6px}
+.book{background:linear-gradient(#3a2414,#24150b);border:3px solid #b8893a;border-radius:6px;box-shadow:0 0 0 2px #2a1708,inset 0 0 0 2px #5e3d1a,0 6px 20px #0008;padding:10px 12px}
+#title{font-size:30px;text-align:center;letter-spacing:2px;color:#ffd77a;text-shadow:0 2px 0 #6a2b00,0 0 12px #ff9a3a88;margin:0}
+body.port #title{display:none}
+#stats{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;align-items:end}
+body.port #stats{grid-template-columns:auto 1fr auto;padding:6px 10px}
+.lab{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#c9a46a}
+.val{font-size:26px;font-weight:bold;color:#fff3cf;font-variant-numeric:tabular-nums;text-shadow:0 2px 0 #000}
+body.port .val{font-size:22px}
+#barW{grid-column:1/-1;height:16px;background:#120a06;border:2px solid #b8893a;border-radius:3px;position:relative;overflow:hidden}
+#bar{height:100%;width:0;background:repeating-linear-gradient(90deg,#7b3cff 0 6px,#a970ff 6px 12px);box-shadow:0 0 10px #a970ff;transition:width .25s}
+#bar.time{background:repeating-linear-gradient(90deg,#ff8a1c 0 6px,#ffc04a 6px 12px)}
+#modeL{grid-column:1/-1;font-size:13px;color:#c9a46a;text-align:center;letter-spacing:1px}
+#btns{display:flex;gap:8px;justify-content:center}
+.ib{width:56px;height:56px;border-radius:10px;border:2px solid #b8893a;background:#2c1a0d;color:#ffe9b0;font-size:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:inset 0 -3px 0 #1a0e05}
+.ib.off{opacity:.45}
+body.port #btns{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 10px);left:0;right:0}
+#bw{position:relative}
+body.port #bw{margin:auto 0;top:-30px}
+#board{cursor:pointer}
+#combo{position:absolute;left:0;right:0;top:38%;text-align:center;font-size:34px;font-weight:bold;color:#fff;pointer-events:none;opacity:0;text-shadow:0 0 8px #c07bff,0 3px 0 #3a0a6a;transition:opacity .2s}
+#padhint{font-size:12px;color:#c9a46a;text-align:center;line-height:1.5}
+body.port #padhint{display:none}
+#ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#0b061899;z-index:5;padding:14px}
+#ov.show{display:flex}
+.panel{display:none;width:min(420px,100%);max-height:100%;overflow:auto;text-align:center}
+.panel.show{display:block}
+.panel h1{font-size:clamp(28px,9vw,44px);margin:4px 0 0;color:#ffd77a;letter-spacing:3px;text-shadow:0 3px 0 #6a2b00,0 0 18px #ff9a3a99}
+.panel h2{font-size:28px;margin:4px 0 8px;color:#ffd77a}
+.panel p{margin:6px 0;line-height:1.4;font-size:15px;color:#ecd9ae}
+.sub{font-style:italic;color:#c9a46a;margin-bottom:10px}
+.btn{display:block;width:100%;margin:8px 0;padding:12px;font:inherit;font-size:20px;font-weight:bold;color:#fff0c8;background:linear-gradient(#5a3418,#3a200e);border:2px solid #b8893a;border-radius:8px;cursor:pointer;box-shadow:inset 0 -3px 0 #1d0f05}
+.btn small{display:block;font-size:12px;font-weight:normal;color:#d6b97c}
+.btn:hover,.btn.f{border-color:#ffe08a;box-shadow:0 0 0 3px #ffd77a88,inset 0 -3px 0 #1d0f05;color:#fff}
+.row{display:flex;gap:8px}.row .btn{flex:1}
+table{width:100%;border-collapse:collapse;font-size:17px}td{padding:6px;border-bottom:1px solid #5e3d1a}td:last-child{text-align:right;font-weight:bold}
+.help{text-align:left;font-size:14px}.help b{color:#ffd77a}
+#logo{width:96px;height:96px;margin:0 auto}
+</style></head><body>
+<canvas id="bg"></canvas>
+<div id="app">
+ <div id="side">
+  <h1 id="title">RUNESHATTER</h1>
+  <div class="book" id="stats">
+   <div><div class="lab" id="lvlL">Level</div><div class="val" id="lvl">1</div></div>
+   <div style="text-align:right"><div class="lab">Score</div><div class="val" id="score">0</div></div>
+   <div id="barW"><div id="bar"></div></div>
+   <div id="modeL">Classic</div>
+  </div>
+  <div id="btns"><div class="ib" id="bMenu" title="Pause (Start / Esc)">☰</div><div class="ib" id="bHint" title="Hint (Y / H)">💡</div><div class="ib" id="bSnd" title="Sound">🔊</div><div class="ib" id="bMus" title="Music">🎵</div></div>
+  <div class="book" id="padhint">Mouse: drag or click two runes<br>Keys: arrows move · Space grab · Esc pause · H hint<br>Xbox: D-pad/stick move · A grab + direction swap · B cancel · Y hint · Start pause</div>
+ </div>
+ <div id="bw"><canvas id="board" width="216" height="216"></canvas><div id="combo"></div></div>
+</div>
+<div id="ov" class="show">
+ <div class="panel book show" id="pMenu"><canvas id="logo" width="24" height="24"></canvas><h1>RUNESHATTER</h1><div class="sub">Match the runes. Unleash the spells.</div>
+  <button class="btn" id="mCont" style="display:none">Continue<small id="mContS"></small></button>
+  <button class="btn" data-mode="classic">Classic<small>Endless levels — runs out of moves, game over</small></button>
+  <button class="btn" data-mode="zen">Zen<small>No pressure. Board reshuffles forever</small></button>
+  <button class="btn" data-mode="lightning">Lightning<small>60 seconds. Forge power-ups for more time</small></button>
+  <div class="row"><button class="btn" id="mHelp">How to Play</button><button class="btn" id="mScores">Records</button></div>
+  <button class="btn" id="mSet">Settings</button></div>
+ <div class="panel book" id="pPause"><h2>Paused</h2><button class="btn" id="pRes">Resume</button><button class="btn" id="pHelp">How to Play</button><button class="btn" id="pSet">Settings</button><button class="btn" id="pQuit">Save &amp; Quit to Menu</button></div>
+ <div class="panel book" id="pOver"><h2 id="oT">Out of Moves</h2><p id="oS"></p><p id="oB"></p><button class="btn" id="oAgain">Play Again</button><button class="btn" id="oMenu">Menu</button></div>
+ <div class="panel book" id="pHelpP"><h2>Spellbook</h2><div class="help">
+  <p>Swap two neighbouring runes to line up <b>3 or more</b> of the same element. You can keep swapping while cascades are still falling — only moving runes are locked.</p>
+  <p>🔥 <b>Match 4</b> → <b>Flame Rune</b>: explodes 3×3.</p>
+  <p>✴ <b>L or T shape</b> → <b>Star Rune</b>: blasts its whole row and column.</p>
+  <p>🔮 <b>Match 5 in a line</b> → <b>Arcane Orb</b>: swap it with any rune to strike every rune of that colour with lightning.</p>
+  <p>☀ <b>Match 6+</b> → <b>Supernova</b>: three rows and three columns.</p>
+  <p>💥 <b>Swap two power-ups together</b> for bigger spells. Orb + Orb clears the board!</p>
+  <p>Chains build a <b>cascade multiplier</b>. Fill the mana bar to level up.</p>
+  <p><b>Touch</b>: swipe a rune, or tap two. <b>Mouse</b>: drag or click. <b>Xbox</b>: D-pad/stick moves, hold or tap A then push a direction to swap, B cancels, Y hint, Start pause.</p></div>
+  <button class="btn back">Back</button></div>
+ <div class="panel book" id="pScores"><h2>Records</h2><table id="sTab"></table><button class="btn back">Back</button></div>
+ <div class="panel book" id="pSetP"><h2>Settings</h2>
+  <button class="btn" id="sSnd">Sound: On</button><button class="btn" id="sMus">Music: On</button><button class="btn" id="sShake">Screen shake: On</button><button class="btn" id="sReset">Reset records</button><button class="btn back">Back</button></div>
+</div>
+<script src="game.js"></script>
+</body></html>
