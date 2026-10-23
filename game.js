@@ -138,11 +138,11 @@ function trySwap(c1,r1,c2,r2){
  if(!G||G.over||paused)return false;const a=at(c1,r1),b=at(c2,r2);if(!idle(a)||!idle(b))return false;if(AB(c1-c2)+AB(r1-r2)!==1)return false;
  grid[c1][r1]=b;grid[c2][r2]=a;a.st=b.st='swap';SW.push({a,b,c1,r1,c2,r2,t:0,back:false});sfx('swap');G.idle=0;G.hint=null;G.lastAct=now;return true}
 function endSwap(s){const {a,b}=s;a.x=s.c2;a.y=s.r2;b.x=s.c1;b.y=s.r1;
- if(s.back){a.st=b.st='idle';return}
+ if(s.back){a.st=b.st='idle';if(window.__rv)window.__rv(s);return}
  a.st=b.st='idle';a.mv=b.mv=now+1;
  if(a.sp===3||b.sp===3||(a.sp&&b.sp)){comboSpell(a,s.c2,s.r2,b,s.c1,s.r1);return}
  if(lineAt(s.c2,s.r2,a.t)||lineAt(s.c1,s.r1,b.t)){if(G.chain<1)G.chain=0;return}
- grid[s.c1][s.r1]=a;grid[s.c2][s.r2]=b;a.st=b.st='swap';SW.push({a:b,b:a,c1:s.c2,r1:s.r2,c2:s.c1,r2:s.r1,t:0,back:true,ac:s.c2});sfx('bad')}
+ grid[s.c1][s.r1]=a;grid[s.c2][s.r2]=b;a.st=b.st='swap';SW.push({a,b,c1:s.c2,r1:s.r2,c2:s.c1,r2:s.r1,t:0,back:true});sfx('bad');shake(1.2)}
 // ===== effects =====
 const cx=c=>M+c*CS+CS/2,cy=r=>M+r*CS+CS/2;
 function burst(x,y,ramp,n,sp,opt){opt=opt||{};for(let i=0;i<n;i++){const a=Math.random()*6.283,v=rnd(sp*.3,sp);PT.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-(opt.up||0),l:0,m:rnd(.35,.8)*(opt.life||1),ramp,s:Math.random()<(opt.big||.25)?(Math.random()<.3?3:2):1,g:opt.g==null?120:opt.g,dr:opt.dr||.96})}}
