@@ -110,13 +110,13 @@ function audio(){if(AC){if(AC.state==='suspended')AC.resume();return}try{AC=new 
  DUCK=AC.createGain();DUCK.connect(MG);MUG=AC.createGain();MUG.gain.value=mGain();MUG.connect(DUCK);
  SFXN.forEach(n=>fetchBuf('audio/sfx/'+n+'.'+AEXT).then(b=>SB[n]=b).catch(()=>{}));
  if(AC.state==='suspended')AC.resume();if(wantMus)playMus(wantMus)}
-function play(n,o){o=o||{};const b=SB[n];if(!b||!AC)return;const s=AC.createBufferSource(),g=AC.createGain();s.buffer=b;
+const LASTP={},THR={match:.045,swap:.04,land:.06,make:.05,tick:.04,crackle:.03};function play(n,o){o=o||{};const b=SB[n];if(!b||!AC)return;if(THR[n]){if(AC.currentTime-(LASTP[n]||-1)<THR[n])return;LASTP[n]=AC.currentTime}const s=AC.createBufferSource(),g=AC.createGain();s.buffer=b;
  s.playbackRate.value=(o.rate||1)*(o.exact?1:rnd(.96,1.04));g.gain.value=(o.vol||1)*(o.exact?1:rnd(.9,1));s.connect(g);g.connect(SG);s.start(AC.currentTime+(o.at||0))}
 function duck(amt,len){if(!DUCK||!SAVE.set.mus)return;const t=AC.currentTime,p=DUCK.gain;p.cancelScheduledValues(t);p.setValueAtTime(p.value,t);p.linearRampToValueAtTime(amt,t+.06);p.setValueAtTime(amt,t+len);p.linearRampToValueAtTime(1,t+len+1.2)}
 const SCALE=[0,2,4,5,7,9,11];
 const SFX={
- swap(){play('swap')},bad(){play('bad')},land(){play('land',{vol:.7,rate:rnd(.85,1.15)})},tick(){play('tick',{exact:1})},shuffle(){play('shuffle')},make(){play('make')},
- match(ch){const b=Math.max(0,Math.min((ch||1)-1,11)),st=SCALE[b%7]+12*Math.floor(b/7);play('match',{rate:Math.pow(2,(st-5)/12),exact:1,vol:.9+Math.min(b,6)*.03})},
+ swap(){play('swap',{rate:rnd(.94,1.06)})},bad(){play('bad')},land(){play('land',{vol:.7,rate:rnd(.85,1.15)})},tick(){play('tick',{exact:1})},shuffle(){play('shuffle')},make(){play('make')},
+ match(ch){const b=Math.max(0,Math.min((ch||1)-1,4)),st=[0,2,4,5,7][b];play('match',{rate:Math.pow(2,st/12),exact:1,vol:.85+b*.03})},
  boom(){play('boom');duck(.45,.6)},whoosh(){play('whoosh')},beam(){play('beam');duck(.6,.4)},crackle(){play('crackle',{rate:rnd(.85,1.2)})},
  zap(){play('zap');duck(.45,.8)},swell(big){play(big?'swellbig':'swell')},nova(){play('nova');duck(.3,1.6)},clash(){play('clash');duck(.4,1)},tail(){play('tail');duck(.35,1.4)},
  level(){play('level',{exact:1});duck(.35,2.2)}};
