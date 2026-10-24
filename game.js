@@ -105,18 +105,21 @@ const sGain=()=>SAVE.set.snd?SAVE.set.sv:0,mGain=()=>SAVE.set.mus?SAVE.set.mv*.5
 function fetchBuf(u){return fetch(u).then(r=>{if(!r.ok)throw 0;return r.arrayBuffer()}).then(b=>new Promise((ok,no)=>{const p=AC.decodeAudioData(b,ok,no);if(p&&p.then)p.then(ok,no)}))}
 function audio(){if(AC){if(AC.state==='suspended')AC.resume();return}try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return}
  const a=document.createElement('audio');AEXT=a.canPlayType&&a.canPlayType('audio/ogg; codecs="opus"')?'ogg':'mp3';
- MG=AC.createGain();MG.gain.value=.95;const cp=AC.createDynamicsCompressor();cp.threshold.value=-8;cp.knee.value=6;cp.ratio.value=3;cp.attack.value=.004;cp.release.value=.2;MG.connect(cp);cp.connect(AC.destination);
- SG=AC.createGain();SG.gain.value=sGain();SG.connect(MG);
+ MG=AC.createGain();MG.gain.value=.9;const dc=(th,kn,ra,at,re)=>{const c=AC.createDynamicsCompressor();c.threshold.value=th;c.knee.value=kn;c.ratio.value=ra;c.attack.value=at;c.release.value=re;return c};
+ // master bus: gentle glue compressor -> brickwall-style limiter so stacked combos never spike
+ const cp=dc(-12,10,3,.006,.25),lim=dc(-3,0,20,.001,.12);MG.connect(cp);cp.connect(lim);lim.connect(AC.destination);
+ // SFX sub-bus: files are pre-levelled to ~-19 LUFS; bus sits ~2 dB under music and tames pile-ups
+ SG=AC.createGain();SG.gain.value=sGain();const sc=dc(-18,12,4,.004,.18),sT=AC.createGain();sT.gain.value=.8;SG.connect(sc);sc.connect(sT);sT.connect(MG);
  DUCK=AC.createGain();DUCK.connect(MG);MUG=AC.createGain();MUG.gain.value=mGain();MUG.connect(DUCK);
  SFXN.forEach(n=>fetchBuf('audio/sfx/'+n+'.'+AEXT).then(b=>SB[n]=b).catch(()=>{}));
  if(AC.state==='suspended')AC.resume();if(wantMus)playMus(wantMus)}
-const LASTP={},THR={match:.045,swap:.04,land:.06,make:.05,tick:.04,crackle:.03};function play(n,o){o=o||{};const b=SB[n];if(!b||!AC)return;if(THR[n]){if(AC.currentTime-(LASTP[n]||-1)<THR[n])return;LASTP[n]=AC.currentTime}const s=AC.createBufferSource(),g=AC.createGain();s.buffer=b;
+const LASTP={},THR={match:.06,boom:.08,zap:.08,beam:.06,whoosh:.05,swap:.04,land:.06,make:.05,tick:.04,crackle:.03};function play(n,o){o=o||{};const b=SB[n];if(!b||!AC)return;if(THR[n]){if(AC.currentTime-(LASTP[n]||-1)<THR[n])return;LASTP[n]=AC.currentTime}const s=AC.createBufferSource(),g=AC.createGain();s.buffer=b;
  s.playbackRate.value=(o.rate||1)*(o.exact?1:rnd(.96,1.04));g.gain.value=(o.vol||1)*(o.exact?1:rnd(.9,1));s.connect(g);g.connect(SG);s.start(AC.currentTime+(o.at||0))}
 function duck(amt,len){if(!DUCK||!SAVE.set.mus)return;const t=AC.currentTime,p=DUCK.gain;p.cancelScheduledValues(t);p.setValueAtTime(p.value,t);p.linearRampToValueAtTime(amt,t+.06);p.setValueAtTime(amt,t+len);p.linearRampToValueAtTime(1,t+len+1.2)}
 const SCALE=[0,2,4,5,7,9,11];
 const SFX={
- swap(){play('swap',{rate:rnd(.94,1.06)})},bad(){play('bad')},land(){play('land',{vol:.7,rate:rnd(.85,1.15)})},tick(){play('tick',{exact:1})},shuffle(){play('shuffle')},make(){play('make')},
- match(ch){const b=Math.max(0,Math.min((ch||1)-1,4)),st=[0,2,4,5,7][b];play('match',{rate:Math.pow(2,st/12),exact:1,vol:.85+b*.03})},
+ swap(){play('swap',{rate:rnd(.94,1.06)})},bad(){play('bad')},land(){play('land',{vol:.85,rate:rnd(.85,1.15)})},tick(){play('tick',{exact:1})},shuffle(){play('shuffle')},make(){play('make')},
+ match(ch){const b=Math.max(0,Math.min((ch||1)-1,4)),st=[0,2,4,5,7][b];play('match',{rate:Math.pow(2,st/12),exact:1,vol:.8+b*.02})},
  boom(){play('boom');duck(.45,.6)},whoosh(){play('whoosh')},beam(){play('beam');duck(.6,.4)},crackle(){play('crackle',{rate:rnd(.85,1.2)})},
  zap(){play('zap');duck(.45,.8)},swell(big){play(big?'swellbig':'swell')},nova(){play('nova');duck(.3,1.6)},clash(){play('clash');duck(.4,1)},tail(){play('tail');duck(.35,1.4)},
  level(){play('level',{exact:1});duck(.35,2.2)}};
