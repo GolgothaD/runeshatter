@@ -55,7 +55,7 @@ body.port #padhint{display:none}
 .btn{display:block;width:100%;margin:8px 0;padding:12px;font:inherit;font-size:20px;font-weight:bold;color:#fff0c8;background:linear-gradient(#5a3418,#3a200e);border:2px solid #b8893a;border-radius:8px;cursor:pointer;box-shadow:inset 0 -3px 0 #1d0f05}
 .btn small{display:block;font-size:12px;font-weight:normal;color:#d6b97c}
 .btn:hover,.btn.f{border-color:#ffe08a;box-shadow:0 0 0 3px #ffd77a88,inset 0 -3px 0 #1d0f05;color:#fff}
-.row{display:flex;gap:8px}.row .btn{flex:1}
+.row{display:flex;gap:8px}.vol{display:block;margin:6px 2px;color:#fff0c8;font-size:16px;font-weight:bold}.vol input{display:block;width:100%;margin-top:4px;accent-color:#e0b050}.cred{color:#fff0c8;font-size:15px;line-height:1.45;text-align:center}.cred a{color:#ffd27a}.cred small{color:#d6b97c}.row .btn{flex:1}
 table{width:100%;border-collapse:collapse;font-size:17px}td{padding:6px;border-bottom:1px solid #5e3d1a}td:last-child{text-align:right;font-weight:bold}
 .help{text-align:left;font-size:14px}.help b{color:#ffd77a}
 #logo{width:96px;height:96px;margin:0 auto}
@@ -110,7 +110,12 @@ table{width:100%;border-collapse:collapse;font-size:17px}td{padding:6px;border-b
   <button class="btn back">Back</button></div>
  <div class="panel book" id="pScores"><h2>Records</h2><table id="sTab"></table><button class="btn back">Back</button></div>
  <div class="panel book" id="pSetP"><h2>Settings</h2>
-  <button class="btn" id="sSnd">Sound: On</button><button class="btn" id="sMus">Music: On</button><button class="btn" id="sQ">Effects quality: Auto</button><button class="btn" id="sShake">Screen shake: On</button><button class="btn" id="sReset">Reset records</button><button class="btn back">Back</button></div>
+  <button class="btn" id="sSnd">Sound: On</button><button class="btn" id="sMus">Music: On</button><label class="vol">Music volume<input type="range" id="vMus" min="0" max="100" step="5"></label><label class="vol">Effects volume<input type="range" id="vSfx" min="0" max="100" step="5"></label><button class="btn" id="sQ">Effects quality: Auto</button><button class="btn" id="sShake">Screen shake: On</button><button class="btn" id="sReset">Reset records</button><button class="btn" id="sCred">Credits</button><button class="btn back">Back</button></div>
+<div class="panel book" id="pCred"><h2>Credits</h2><div class="cred">
+<p><b>Music</b> by Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0<br><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">creativecommons.org/licenses/by/4.0</a></p>
+<p>&ldquo;Dreamy Flashback&rdquo; &middot; &ldquo;Enchanted Valley&rdquo; &middot; &ldquo;Five Armies&rdquo; &middot; &ldquo;Darkest Child&rdquo;<br><small>Trimmed into seamless loops and loudness-matched for Runeshatter.</small></p>
+<p><b>Sound effects</b>: original, designed for Runeshatter (layered synthesis, CC0).</p>
+<p><b>Art</b>: generated with Z-Image Turbo.</p></div><button class="btn back">Back</button></div>
 </div>
 <div id="theme"></div><script src="game.js"></script>
 </body></html>
