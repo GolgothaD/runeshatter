@@ -361,12 +361,12 @@ function render(){const t=now;bx.setTransform(1,0,0,1,0,0);bx.globalAlpha=1;bx.g
   if(sp===3){bx.globalAlpha=.5+.5*Math.sin(t*6);bx.drawImage(ORBG,x-4,y-4,CS+8,CS+8);bx.globalAlpha=1;bx.drawImage(ORB[((t*14)|0)%16],x,y,CS,CS)}
   else{bx.drawImage(SPR[g.t],x,y,CS,CS);const ph=(t*.3+g.id*.1373)%1;if(ph<.1){bx.globalCompositeOperation='lighter';bx.globalAlpha=.75;bx.drawImage(GLINT[g.t][Math.floor(ph/.1*8)],x,y,CS,CS);bx.globalAlpha=1;bx.globalCompositeOperation='source-over'}}
   if(sp===2||sp===4)star(x+12,y+12,t,g.id,sp===4);
-  if(g.pulse>0){bx.globalAlpha=g.pulse;bx.drawImage(WSPR[g.t],x,y,CS,CS);bx.globalAlpha=1}}
+  if(g.pulse>0){bx.globalAlpha=g.pulse;bx.drawImage(WSPR[g.t],x,y,CS,CS);bx.globalAlpha=1}if((g.ice||g.curse)&&window.gemMark)gemMark(bx,g,x,y,t)}
  // selection & cursor
  const corner=(c,r,col,o)=>{const x=M+c*CS,y=M+r*CS;bx.fillStyle=col;for(const [px,py,sx,sy] of [[x-o,y-o,1,1],[x+CS-1+o,y-o,-1,1],[x-o,y+CS-1+o,1,-1],[x+CS-1+o,y+CS-1+o,-1,-1]]){bx.fillRect(Math.min(px,px+sx*4),py,5,1);bx.fillRect(px,Math.min(py,py+sy*4),1,5)}};
  if(sel){const o=((t*6)|0)%2;corner(sel.c,sel.r,'#ffffff',o-1);bx.globalAlpha=.18;bx.fillStyle='#fff';bx.fillRect(M+sel.c*CS,M+sel.r*CS,CS,CS);bx.globalAlpha=1}
  if(cur.show){corner(cur.c,cur.r,held?'#ffe08a':'#7bf0ff',0);if(held){bx.fillStyle='#ffe08a';const x=M+cur.c*CS+11,y=M+cur.r*CS;bx.fillRect(x,y-1,2,1);bx.fillRect(x,y+CS,2,1);bx.fillRect(M+cur.c*CS-1,y+11,1,2);bx.fillRect(M+cur.c*CS+CS,y+11,1,2)}}
- bx.restore();
+ if(window.duelBoardFx)duelBoardFx(bx,t);bx.restore();
  // fx
  
  for(const f of FX){if(f.l<0)continue;const p=f.l/f.m;

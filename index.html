@@ -71,11 +71,79 @@ table{width:100%;border-collapse:collapse;font-size:17px}td{padding:6px;border-b
 #theme small{display:block;font-size:.5em;letter-spacing:6px;color:var(--acc);text-shadow:0 2px 0 #000}
 #theme.on{opacity:1;transform:scale(1)}
 @media (orientation:portrait){#theme{top:15%}}
+
+/* ===== Duels ===== */
+#duelUI{display:none;flex-direction:column;gap:8px}body.duel #duelUI{display:flex}
+body.duel #stats,body.duel #padhint,body.duel #book2{display:none}body.duel #title{display:none}
+#foe{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;padding:8px 10px;position:relative;transition:box-shadow .3s}
+#fPor{position:relative;width:96px;height:96px;border-radius:50%;border:3px solid #b8893a;box-shadow:0 0 0 2px #2a1708,0 0 18px var(--fcol,#a970ff);overflow:hidden;background:#000}
+#fPor img{width:100%;height:100%;object-fit:cover;display:block;transition:filter .2s}
+#fPor.hit{animation:fhit .35s}#fPor.hit img{filter:brightness(1.8) saturate(.6) sepia(.3) hue-rotate(-30deg)}
+#fPor.cast{box-shadow:0 0 0 2px #2a1708,0 0 26px 6px var(--fcol,#a970ff);animation:fcast .9s infinite}
+#fPor.ko img{filter:grayscale(1) brightness(.5)}
+@keyframes fhit{0%{transform:translate(0)}20%{transform:translate(-5px,2px)}40%{transform:translate(5px,-2px)}60%{transform:translate(-3px,1px)}80%{transform:translate(2px,0)}100%{transform:none}}
+@keyframes fcast{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+#fInfo{min-width:0;display:flex;flex-direction:column;gap:4px}
+#fName{font-size:19px;font-weight:bold;color:#fff3cf;text-shadow:0 2px 0 #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#fTitle{font-size:12px;font-style:italic;color:#c9a46a;margin-top:-4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hpW{position:relative;height:18px;background:#120a06;border:2px solid #b8893a;border-radius:4px;overflow:hidden}
+.hpW>div{position:absolute;left:0;top:0;bottom:0;width:100%}
+#fHpG,#mHpG{background:#fff2c0;transition:width .5s .35s}
+#fHp{background:linear-gradient(#ff7a6a,#c8202a 60%,#8a0a14);box-shadow:inset 0 2px 0 #ffffff55;transition:width .15s}
+#mHp{background:linear-gradient(#8affb0,#22b45a 60%,#0a6a2a);box-shadow:inset 0 2px 0 #ffffff55;transition:width .15s}
+#mHp.low{background:linear-gradient(#ffd07a,#e08020 60%,#8a3a0a)}
+#mSh{background:linear-gradient(#e8fbff,#7ad8ff 60%,#2a7ad0);opacity:.85;width:0;transition:width .25s;mix-blend-mode:screen}
+.hpW span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;color:#fff;text-shadow:0 1px 2px #000,0 0 3px #000;font-variant-numeric:tabular-nums;letter-spacing:.5px}
+.mpW{position:relative;height:9px;background:#120a06;border:2px solid #6a4a20;border-radius:4px;overflow:hidden}
+#fMp{position:absolute;inset:0;width:0;background:repeating-linear-gradient(90deg,var(--fcol,#a970ff) 0 5px,#ffffff66 5px 6px);box-shadow:0 0 8px var(--fcol,#a970ff)}
+#fTel{display:none;position:relative;height:24px;border:2px solid #ff6a5a;border-radius:4px;background:#2a0808;overflow:hidden;animation:tel .5s infinite alternate}
+#fTel.on{display:block}
+#fTelB{position:absolute;inset:0;width:100%;background:linear-gradient(90deg,#ff3a2a88,#ff9a3a88)}
+#fTelC{position:absolute;left:0;bottom:0;height:4px;width:0;background:#ffe08a;box-shadow:0 0 6px #ffe08a}
+#fTelT{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:bold;color:#fff;text-shadow:0 1px 2px #000;white-space:nowrap}
+@keyframes tel{from{box-shadow:0 0 4px #ff3a2a}to{box-shadow:0 0 16px #ff3a2a}}
+#foe.tele{box-shadow:0 0 0 2px #2a1708,inset 0 0 0 2px #5e3d1a,0 0 22px #ff3a2a}
+#fSay{position:absolute;left:112px;right:8px;top:100%;margin-top:6px;z-index:3;background:#fff4dc;color:#3a2010;border-radius:10px;padding:6px 10px;font-size:13px;font-style:italic;line-height:1.3;box-shadow:0 4px 14px #000a;opacity:0;transform:translateY(-4px);transition:opacity .3s,transform .3s;pointer-events:none}
+#fSay:before{content:"";position:absolute;left:14px;top:-7px;border:7px solid transparent;border-top:0;border-bottom-color:#fff4dc}
+#fSay.on{opacity:1;transform:none}
+#me{padding:6px 10px;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:center}
+#me .lab{font-size:11px}#mSt{grid-column:1/-1;display:flex;justify-content:space-between;font-size:12px;color:#d6b97c}#mSt b{color:#fff3cf}
+#dfx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:4;image-rendering:auto}
+#dmgL{position:fixed;inset:0;pointer-events:none;z-index:4;overflow:hidden}
+.dmg{position:absolute;transform:translate(-50%,-50%);font-weight:bold;font-size:26px;color:#fff;text-shadow:0 0 8px currentColor,0 2px 0 #000,0 0 2px #000;animation:dmg 1.1s ease-out forwards;white-space:nowrap;font-variant-numeric:tabular-nums}
+.dmg.big{font-size:38px}.dmg.foe{color:#ffd27a}.dmg.me{color:#ff6a5a}.dmg.heal{color:#7affa0}.dmg.sh{color:#9ae8ff}.dmg.word{font-size:30px;letter-spacing:2px}
+@keyframes dmg{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}15%{opacity:1;transform:translate(-50%,-60%) scale(1.15)}30%{transform:translate(-50%,-70%) scale(1)}100%{opacity:0;transform:translate(-50%,-160%) scale(.95)}}
+#vig{position:fixed;inset:0;pointer-events:none;z-index:3;opacity:0;background:radial-gradient(ellipse at center,transparent 45%,#c0101088 100%);transition:opacity .5s}
+#vig.on{opacity:1;transition:opacity .05s}#vig.ice{background:radial-gradient(ellipse at center,transparent 45%,#60c8ff88 100%)}
+body.port #foe{max-width:520px;width:100%;grid-template-columns:auto 1fr;padding:6px 8px;gap:8px}
+body.port #fPor{width:72px;height:72px}body.port #fName{font-size:16px}body.port #fSay{left:86px}
+body.port #me{max-width:520px;width:100%;padding:4px 8px}body.port #mSt{display:none}
+body.port #duelUI{width:100%;align-items:center;gap:5px}
+body.sq #foe{grid-template-columns:1fr;justify-items:center;text-align:center}body.sq #fPor{width:150px;height:150px}body.sq #fInfo{width:100%}body.sq #fSay{left:10px;top:auto;bottom:100%;margin:0 0 6px}body.sq #fSay:before{left:50%;top:auto;bottom:-7px;border-bottom:0;border-top:7px solid #fff4dc}
+body.duel:not(.port):not(.sq) #side{width:340px}body:not(.port):not(.sq) #foe{grid-template-columns:1fr;justify-items:center;text-align:center}body:not(.port):not(.sq) #fPor{width:170px;height:170px}body:not(.port):not(.sq) #fSay{left:10px;top:auto;bottom:100%;margin:0 0 6px}body:not(.port):not(.sq) #fSay:before{left:50%;top:auto;bottom:-7px;border-bottom:0;border-top:7px solid #fff4dc}#fTelT{font-size:12px}body:not(.port):not(.sq) #fInfo{width:100%}
+/* ladder */
+#pLadder{width:min(520px,100%)}
+.lad{display:grid!important;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;text-align:left;padding:8px 12px!important;margin:7px 0!important}
+.lad img{width:64px;height:64px;border-radius:50%;border:2px solid #b8893a;object-fit:cover}
+.lad b{display:block;font-size:18px}.lad small{font-size:12px}.lad i{font-style:normal;font-size:13px;color:#ffd27a;text-align:right;white-space:nowrap}
+.lad.lock{opacity:.5;filter:grayscale(.8)}.lad.lock img{filter:blur(2px) brightness(.5)}.lad.done i{color:#8affb0}
+#ldP{color:#c9a46a;font-size:14px;margin:-4px 0 6px}
+#pDuelEnd img{width:132px;height:132px;border-radius:50%;border:3px solid #b8893a;object-fit:cover;display:block;margin:6px auto;box-shadow:0 0 24px var(--fcol,#a970ff)}
+#pDuelEnd.lose img{filter:none}#pDuelEnd.win img{filter:grayscale(.7) brightness(.7)}
+#deQ{font-style:italic;color:#ecd9ae}#deS{display:grid;grid-template-columns:1fr 1fr;gap:2px 14px;margin:8px 0;font-size:14px}#deS div{display:flex;justify-content:space-between;color:#d6b97c}#deS b{color:#fff3cf}
+#pDuelEnd.win h1{color:#ffe08a}#pDuelEnd.lose h1{color:#ff7a6a;text-shadow:0 3px 0 #4a0a0a,0 0 18px #ff3a2a99}
 </style></head><body>
-<canvas id="art0" class="art"></canvas><canvas id="art1" class="art"></canvas><canvas id="bg"></canvas>
+<canvas id="art0" class="art"></canvas><canvas id="art1" class="art"></canvas><canvas id="bg"></canvas><div id="vig"></div>
 <div id="app">
  <div id="side">
   <h1 id="title">RUNESHATTER</h1>
+  <div id="duelUI">
+   <div class="book" id="foe"><div id="fPor"><img id="fImg" alt=""></div><div id="fInfo"><div id="fName"></div><div id="fTitle"></div>
+    <div class="hpW"><div id="fHpG"></div><div id="fHp"></div><span id="fHpT"></span></div><div class="mpW" title="Spell meter"><div id="fMp"></div></div>
+    <div id="fTel"><div id="fTelB"></div><div id="fTelC"></div><div id="fTelT"></div></div></div><div id="fSay"></div></div>
+   <div class="book" id="me"><span class="lab">You</span><div class="hpW"><div id="mHpG"></div><div id="mHp"></div><div id="mSh"></div><span id="mHpT"></span></div>
+    <div id="mSt"><span>Shield <b id="mShT">0</b></span><span>Countered <b id="mCt">0</b></span><span>Cascade <b id="mCh">×0</b></span></div></div>
+  </div>
   <div class="book" id="stats">
    <div><div class="lab" id="lvlL">Level</div><div class="val" id="lvl">1</div></div>
    <div style="text-align:right"><div class="lab">Score</div><div class="val" id="score">0</div></div>
@@ -96,10 +164,13 @@ table{width:100%;border-collapse:collapse;font-size:17px}td{padding:6px;border-b
   <button class="btn" data-mode="classic">Classic<small>Endless levels — runs out of moves, game over</small></button>
   <button class="btn" data-mode="zen">Zen<small>No pressure. Board reshuffles forever</small></button>
   <button class="btn" data-mode="lightning">Lightning<small>60 seconds. Forge power-ups for more time</small></button>
+  <button class="btn" id="mDuel">Duels<small>Battle rival wizards up the Tower Ladder</small></button>
   <div class="row"><button class="btn" id="mHelp">How to Play</button><button class="btn" id="mScores">Records</button></div>
   <button class="btn" id="mSet">Settings</button></div>
  <div class="panel book" id="pPause"><h2>Paused</h2><button class="btn" id="pRes">Resume</button><button class="btn" id="pHelp">How to Play</button><button class="btn" id="pSet">Settings</button><button class="btn" id="pQuit">Save &amp; Quit to Menu</button></div>
  <div class="panel book" id="pOver"><h2 id="oT">Out of Moves</h2><p id="oS"></p><p id="oB"></p><button class="btn" id="oAgain">Play Again</button><button class="btn" id="oMenu">Menu</button></div>
+ <div class="panel book" id="pLadder"><h2>The Tower Ladder</h2><div id="ldP"></div><div id="ldL"></div><button class="btn back">Back</button></div>
+ <div class="panel book" id="pDuelEnd"><h1 id="deT">VICTORY</h1><img id="deI" alt=""><p id="deQ"></p><div id="deS"></div><div id="deB"></div></div>
  <div class="panel book" id="pHelpP"><h2>Spellbook</h2><div class="help">
   <p>Swap two neighbouring runes to line up <b>3 or more</b> of the same element. You can keep swapping while cascades are still falling — only moving runes are locked.</p>
   <p>🔥 <b>Match 4</b> → <b>Flame Rune</b>: explodes 3×3.</p>
@@ -107,6 +178,7 @@ table{width:100%;border-collapse:collapse;font-size:17px}td{padding:6px;border-b
   <p>🔮 <b>Match 5 in a line</b> → <b>Arcane Orb</b>: swap it with any rune to strike every rune of that colour with lightning.</p>
   <p>☀ <b>Match 6+</b> → <b>Supernova</b>: three rows and three columns.</p>
   <p>💥 <b>Swap two power-ups together</b> for bigger spells. Orb + Orb clears the board!</p>
+  <p>⚔ <b>Duels</b>: every match hurls a spell at your rival. Combos and power-ups hit harder. <b>Light</b> runes raise a shield. When a rival starts casting (red bar), hit them hard enough to <b>counter</b> it. Frozen runes can't be moved — match next to them to shatter the ice. Cursed runes drain you until matched.</p>
   <p>Chains build a <b>cascade multiplier</b>. Fill the mana bar to level up.</p>
   <p><b>Touch</b>: swipe a rune, or tap two. <b>Mouse</b>: drag or click. <b>Xbox</b>: D-pad/stick moves, hold or tap A then push a direction to swap, B cancels, Y hint, Start pause.</p></div>
   <button class="btn back">Back</button></div>
@@ -116,8 +188,8 @@ table{width:100%;border-collapse:collapse;font-size:17px}td{padding:6px;border-b
 <div class="panel book" id="pCred"><h2>Credits</h2><div class="cred">
 <p><b>Music</b> by Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0<br><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">creativecommons.org/licenses/by/4.0</a></p>
 <p>&ldquo;Dreamy Flashback&rdquo; &middot; &ldquo;Enchanted Valley&rdquo; &middot; &ldquo;Five Armies&rdquo; &middot; &ldquo;Darkest Child&rdquo;<br><small>Trimmed into seamless loops and loudness-matched for Runeshatter.</small></p>
-<p><b>Sound effects</b>: original, designed for Runeshatter (layered synthesis, CC0).</p>
-<p><b>Art</b>: generated with Z-Image Turbo.</p></div><button class="btn back">Back</button></div>
+<p><b>Sound effects</b>: Kenney (kenney.nl), CC0 — layered and loudness-levelled for Runeshatter.</p>
+<p><b>Art</b>: backgrounds generated with Z-Image Turbo; rival portraits AI-generated for Runeshatter.</p></div><button class="btn back">Back</button></div>
 </div>
-<div id="theme"></div><script src="game.js"></script>
+<div id="theme"></div><canvas id="dfx"></canvas><div id="dmgL"></div><script src="game.js"></script><script src="duel.js"></script>
 </body></html>

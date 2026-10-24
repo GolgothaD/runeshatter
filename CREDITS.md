@@ -40,3 +40,6 @@ License: https://creativecommons.org/publicdomain/zero/1.0/
 
 ## Art
 Background art generated with Z-Image Turbo.
+
+## Duels portraits
+The seven rival portraits in `art/duel/` are AI-generated images made for this game.
