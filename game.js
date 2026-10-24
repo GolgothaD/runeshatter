@@ -113,8 +113,8 @@ function audio(){if(AC){if(AC.state==='suspended')AC.resume();return}try{AC=new 
  DUCK=AC.createGain();DUCK.connect(MG);MUG=AC.createGain();MUG.gain.value=mGain();MUG.connect(DUCK);
  SFXN.forEach(n=>fetchBuf('audio/sfx/'+n+'.'+AEXT).then(b=>SB[n]=b).catch(()=>{}));
  if(AC.state==='suspended')AC.resume();if(wantMus)playMus(wantMus)}
-const LASTP={},THR={match:.06,boom:.08,zap:.08,beam:.06,whoosh:.05,swap:.04,land:.06,make:.05,tick:.04,crackle:.03};function play(n,o){o=o||{};const b=SB[n];if(!b||!AC)return;if(THR[n]){if(AC.currentTime-(LASTP[n]||-1)<THR[n])return;LASTP[n]=AC.currentTime}const s=AC.createBufferSource(),g=AC.createGain();s.buffer=b;
- s.playbackRate.value=(o.rate||1)*(o.exact?1:rnd(.96,1.04));g.gain.value=(o.vol||1)*(o.exact?1:rnd(.9,1));s.connect(g);g.connect(SG);s.start(AC.currentTime+(o.at||0))}
+const LASTP={},THR={swap:.15,land:.18,tick:.1,match:.06,boom:.08,zap:.08,beam:.06,whoosh:.05,make:.05,crackle:.03};function play(n,o){o=o||{};const b=SB[n];if(!b||!AC)return;if(THR[n]){if(AC.currentTime-(LASTP[n]||-1)<THR[n])return;LASTP[n]=AC.currentTime}const s=AC.createBufferSource(),g=AC.createGain();s.buffer=b;
+ s.playbackRate.value=(o.rate||1)*(o.exact?1:rnd(.96,1.04));g.gain.value=(o.vol||1)*(o.exact?1:rnd(.9,1));s.connect(g);g.connect(SG);s.start(AC.currentTime+(o.at||0));(window.__plays=window.__plays||{})[n]=(window.__plays[n]||0)+1}
 function duck(amt,len){if(!DUCK||!SAVE.set.mus)return;const t=AC.currentTime,p=DUCK.gain;p.cancelScheduledValues(t);p.setValueAtTime(p.value,t);p.linearRampToValueAtTime(amt,t+.06);p.setValueAtTime(amt,t+len);p.linearRampToValueAtTime(1,t+len+1.2)}
 const SCALE=[0,2,4,5,7,9,11];
 const SFX={
@@ -275,7 +275,7 @@ function update(dt){now+=dt;if(!G)return;
    if(!grid[c][0]){let top=0;for(let r=0;r<N;r++){const g=grid[c][r];if(g)top=Math.min(top,g.y)}const g=newGem(pick(c),Math.min(-1,top-1.05));g.x=c;g.vy=3;grid[c][0]=g;moved=true}if(!moved)break}}
  // falling
  for(let c=0;c<N;c++)for(let r=N-1;r>=0;r--){const g=grid[c][r];if(!g||g.st!=='fall')continue;g.vy=Math.min(16,g.vy+38*dt);g.y+=g.vy*dt;const b=at(c,r+1);if(b&&b.y-1<g.y)g.y=b.y-1;g.x=c;
-  if(g.y>=r){g.y=r;g.st='idle';g.mv=now;if(g.vy>6)g.sq=1;g.vy=0;if(Math.random()<.3)sfx('land')}}
+  if(g.y>=r){g.y=r;g.st='idle';g.mv=now;if(g.vy>6)g.sq=1;g.vy=0;if(Math.random()<.15)sfx('land')}}
  resolveMatches();
  // settle bookkeeping
  const st=isSettled();if(st){G.settledFor+=dt;if(G.settledFor>.25&&G.chain){if(G.chain>=6)banner(G.chain>=10?'UNSTOPPABLE!':'MAGNIFICENT!');G.chain=0;hud()}
@@ -608,3 +608,11 @@ window.RS={get G(){return G},get grid(){return grid},start:startGame,swap:trySwa
  for(let c=0;c<N;c++)for(let r=0;r<N;r++){const g=grid[c][r];g.t=T[c][r]%10;g.sp=(T[c][r]/10)|0;g.st='idle';g.y=r;g.x=c;g.vy=0;g.pulse=0}G.chain=0;G.hint=null},
  setBoard(types){for(let c=0;c<N;c++)for(let r=0;r<N;r++){const v=types[r][c];const g=grid[c][r];g.t=v%10;g.sp=(v/10)|0;g.st='idle';g.y=r;g.x=c;g.vy=0}G.chain=0},
  state(){let f=0,cl=0,sw=0,id=0;for(const col of grid)for(const g of col){if(!g)continue;if(g.st==='fall')f++;else if(g.st==='clear')cl++;else if(g.st==='swap')sw++;else id++}return {fall:f,clear:cl,swap:sw,idle:id,score:G.score,chain:G.chain,fx:FX.length,pt:PT.length}}};
+
+// ===== pause all audio when hidden / app switched / screen locked =====
+(function(){let hidAt=false;const off=()=>{if(AC&&AC.state==='running'){hidAt=true;AC.suspend().catch(()=>{})}};
+ const on=()=>{if(document.visibilityState!=='visible'||!AC||!hidAt)return;hidAt=false;if(SAVE.set.snd||SAVE.set.mus)AC.resume().catch(()=>{})};
+ document.addEventListener('visibilitychange',()=>document.visibilityState==='hidden'?off():on());
+ addEventListener('pagehide',off);addEventListener('freeze',off,{capture:true});addEventListener('blur',off);
+ addEventListener('pageshow',on);addEventListener('focus',on);addEventListener('resume',on,{capture:true});
+ window.__audioVis={off,on}})();

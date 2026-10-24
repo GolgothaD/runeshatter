@@ -17,7 +17,7 @@ Recorded sounds by **Kenney** (www.kenney.nl), licensed **CC0 1.0** (public doma
 
 | Game sound | Kenney pack | Source file |
 |---|---|---|
-| swap | RPG Audio | cloth2.ogg |
+| swap | RPG Audio + Impact Sounds + Sci-fi Sounds | layered: cloth2.ogg (soft swish) + impactGlass_light_002.ogg (low-passed crystal twinkle with reverb) + forceField_001.ogg (pitched-up shimmer) |
 | tick | Interface Sounds | tick_002.ogg |
 | land | Impact Sounds | impactSoft_medium_000.ogg |
 | match | Interface Sounds | pluck_002.ogg |
