@@ -10,7 +10,7 @@ Licensed under Creative Commons: By Attribution 4.0 — https://creativecommons.
 | audio/music/quest.* | "Five Armies" | Mountain, Aurora |
 | audio/music/dark.* | "Darkest Child" | Crypt, Blood, Cathedral, Forge |
 
-Modifications: trimmed, crossfaded into seamless loops, loudness-normalised to -16 LUFS, peak-limited, re-encoded (Opus/MP3).
+Modifications: trimmed (Five Armies loop region re-chosen in v7 for an even-intensity seam), crossfaded into seamless loops, loudness-normalised to -16 LUFS, peak-limited, re-encoded (Opus/MP3).
 
 ## Sound effects
 Original, made for Runeshatter by layered synthesis and processing (noise/fire/lightning/choir/bell layers, filtering, convolution reverb, normalisation). Released as CC0.

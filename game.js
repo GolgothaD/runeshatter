@@ -432,7 +432,7 @@ const PREV=mk(1,1),pvx=PREV.getContext('2d');let TH=THEMES[0],thI=-1,trans=0,thN
 function artFor(th,k){const key=th.id+k+(HQ?'':'l');if(ART[key]!==undefined)return ART[key];ART[key]=null;const im=new Image();im.decoding='async';im.onload=()=>{ART[key]=im;if(th===TH)paintArt()};im.src='art/hd/'+th.id+'-'+k+(HQ?'':'-lq')+'.webp';return null}
 // HD backdrop: ONE cover-fit image, drawn once at native device resolution into a static layer (no per-frame redraw, no second copy)
 const ARTC=[$('art0'),$('art1')];let artF=0;
-function artKey(){return innerHeight>innerWidth*1.1?'port':'land'}
+function artKey(){return innerHeight>innerWidth*(document.body.classList.contains('sq')?1.0:1.1)?'port':'land'}
 function paintArt(cv){cv=cv||ARTC[artF];const dpr=devicePixelRatio||1,iw=innerWidth,ih=innerHeight,cap=HQ?3840:1280,f=Math.min(dpr,cap/Math.max(iw,ih)),w=Math.round(iw*f),h=Math.round(ih*f);
  if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h}const c=cv.getContext('2d'),k=artKey(),im=artFor(TH,k);c.fillStyle='#0b0618';c.fillRect(0,0,w,h);if(!im)return;
  c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';const s=Math.max(w/im.width,h/im.height),dw=im.width*s,dh=im.height*s;c.drawImage(im,(w-dw)/2,(h-dh)/2,dw,dh)}
@@ -513,11 +513,16 @@ function renderBg(dt){bgT+=dt;if(G&&G.lit)G.lit.a=Math.max(0,G.lit.a-dt*2.2);if(
  gx.globalAlpha=1}
 // ===== layout =====
 let scale=1;
-function layout(){const port=innerHeight>innerWidth*1.1;document.body.classList.toggle('port',port);const dpr=devicePixelRatio||1;
- const nb=!port&&innerWidth<1000;document.body.classList.toggle('nob2',nb);let avail;if(port){const top=$('side').offsetHeight+16,bot=80+$('book2').offsetHeight+16;avail=Math.min(innerWidth-8,innerHeight-top-bot)}else avail=Math.min(innerWidth-330-(nb?0:250),innerHeight-30);
- let s=Math.floor(avail*dpr/W);if(s<1)s=1;let css=W*s/dpr;if(css<avail*.92){css=Math.floor(avail)}// fallback fractional when integer too small
+function layout(){const iw=innerWidth,ih=innerHeight,ar=ih/iw,sq=iw>=700&&ih>=600&&ar>.78&&ar<1.3,port=!sq&&ar>1.1;const bd=document.body;bd.classList.toggle('port',port);bd.classList.toggle('sq',sq);const dpr=devicePixelRatio||1;
+ const ap=getComputedStyle($('app')),pt=parseFloat(ap.paddingTop)||0,pb=parseFloat(ap.paddingBottom)||0,pl=parseFloat(ap.paddingLeft)||0,pr=parseFloat(ap.paddingRight)||0;
+ const nb=!port&&!sq&&iw<1000;bd.classList.toggle('nob2',nb);let avail;
+ if(sq)avail=Math.min(iw-pl-pr-$('side').offsetWidth-22,ih-pt-pb-16);
+ else if(port){const top=$('side').offsetHeight+16,bot=80+$('book2').offsetHeight+16;avail=Math.min(iw-8-pl-pr,ih-top-bot)}else avail=Math.min(iw-330-(nb?0:250)-pl-pr,ih-30-pt-pb);
+ let s=Math.floor(avail*dpr/W);if(s<1)s=1;let css=W*s/dpr;if(css<avail*.92){css=Math.floor(avail)}
  BC.style.width=BC.style.height=css+'px';scale=css/W;if(G)setBg(G.level);else setBg(1)}
-addEventListener('resize',layout);
+let lt=0;const relayout=()=>{layout();clearTimeout(lt);lt=setTimeout(layout,250)};
+addEventListener('orientationchange',relayout);if(window.visualViewport)visualViewport.addEventListener('resize',relayout);
+addEventListener('resize',relayout);
 // ===== hud / ui =====
 function BOOK(){const ch=G.chain||0;G.best=Math.max(G.best||0,ch);$('cmbV').textContent='×'+ch;const pe=$('pips').children;for(let i=0;i<pe.length;i++)pe[i].className=i<Math.min(10,ch)?(i>=6?'on hot':'on'):'';
  $('bkBest').textContent='×'+(G.best||0);const lt=G.mode==='lightning';$('bkNL').textContent=lt?'Time left':'To level '+(G.level+1);$('bkNext').textContent=lt?Math.ceil(G.time)+'s':Math.max(0,need(G.level)-G.prog).toLocaleString();$('bkMade').textContent=G.made||0;$('bkLv').textContent=lt?'⚡':G.level}
@@ -528,7 +533,7 @@ function banner(s){const e=$('combo');e.textContent=s;e.style.opacity=1;e.style.
 let curP=null,focusI=0;
 function showP(id){$('ov').classList.add('show');document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('show',p.id===id));curP=id;focusI=0;paused=true;refreshMenu();setFocus()}
 function hideOv(){$('ov').classList.remove('show');curP=null;paused=false}
-function btns(){return curP?[...$(curP).querySelectorAll('.btn')].filter(b=>b.offsetParent):[]}
+function btns(){return curP?[...$(curP).querySelectorAll('.btn,.vol input')].filter(b=>b.offsetParent):[]}
 function setFocus(){const b=btns();b.forEach((x,i)=>x.classList.toggle('f',i===focusI&&padMode))}
 let backTo='pMenu';
 function refreshMenu(){const sv=SAVE.save_classic||SAVE.save_zen;const mc=$('mCont');mc.style.display=sv?'block':'none';if(sv){const m=SAVE.save_classic?'classic':'zen';mc.dataset.m=m;$('mContS').textContent=(m==='classic'?'Classic':'Zen')+' · Level '+sv.level+' · '+sv.score.toLocaleString()}
@@ -562,7 +567,7 @@ BC.addEventListener('pointerup',e=>{if(drag&&drag.desel&&!drag.done)sel=null;dra
 const DIRS={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0],KeyW:[0,-1],KeyS:[0,1],KeyA:[-1,0],KeyD:[1,0]};
 addEventListener('keydown',e=>{audio();const d=DIRS[e.code];if(curP){if(d){e.preventDefault();padMode=true;navMenu(d)}else if(e.code==='Enter'||e.code==='Space'){e.preventDefault();const b=btns()[focusI];if(b&&padMode)b.click();else if(b){padMode=true;setFocus()}}else if(e.code==='Escape'){menuBack()}return}
  if(!G)return;if(d){e.preventDefault();gameDir(d)}else if(e.code==='Space'||e.code==='Enter'){e.preventDefault();gameA()}else if(e.code==='Escape'||e.code==='KeyP'){if(held||sel){held=false;sel=null}else pause()}else if(e.code==='KeyH')showHint();else if(e.code==='KeyM')togM()});
-function navMenu(d){const b=btns();if(!b.length)return;if(!b[focusI]||!b[focusI].classList.contains('f')){setFocus()}focusI=(focusI+(d[1]||d[0])+b.length)%b.length;setFocus()}
+function navMenu(d){const b=btns();if(!b.length)return;const fe=b[focusI];if(d[0]&&!d[1]&&fe&&fe.type==='range'&&fe.classList.contains('f')){fe.value=Math.max(0,Math.min(100,+fe.value+d[0]*10));fe.dispatchEvent(new Event('input'));fe.dispatchEvent(new Event('change'));return}if(!b[focusI]||!b[focusI].classList.contains('f')){setFocus()}focusI=(focusI+(d[1]||d[0])+b.length)%b.length;setFocus()}
 function menuBack(){if(curP==='pPause')hideOv();else if(curP==='pCred')showP('pSetP');else if(curP==='pHelpP'||curP==='pScores'||curP==='pSetP')showP(G&&backTo==='pPause'?'pPause':'pMenu')}
 function gameDir(d){if(!cur.show){cur.show=true;padMode=true;return}if(held){const c2=cur.c+d[0],r2=cur.r+d[1];if(c2>=0&&r2>=0&&c2<N&&r2<N&&trySwap(cur.c,cur.r,c2,r2)){held=false;sel=null;cur.c=c2;cur.r=r2}else sfx('bad');return}
  cur.c=Math.max(0,Math.min(N-1,cur.c+d[0]));cur.r=Math.max(0,Math.min(N-1,cur.r+d[1]))}
