@@ -448,21 +448,30 @@ const THEMES=[
  {id:'aurora',name:'The Aurora Tundra',grade:'#4affc8',amb:['aurora','snow','stars']},
  {id:'forest',name:'The Enchanted Forest',grade:'#d0ff6a',amb:['fireflies','shafts','leaves'],shaft:'#e8ffb0',fly:'#fff07a'}];
 const PREV=mk(1,1),pvx=PREV.getContext('2d');let TH=THEMES[0],thI=-1,trans=0,thName=0;
-function artFor(th,k){const key=th.id+k;if(ART[key]!==undefined)return ART[key];ART[key]=null;const im=new Image();im.onload=()=>{ART[key]=im};im.src=th.id==='tower'?'art/bg-'+k+'.png':'art/bg-'+th.id+'-'+k+'.webp';return null}
-THEMES.forEach(t=>{artFor(t,'land');artFor(t,'port')});// warm the cache
-function themeIndex(level){if(!G)return 0;const n=THEMES.length;if(!G.thOrd)G.thOrd=[0];
- while(G.thOrd.length<level){const first=G.thOrd.length===1&&G.thOrd[0]===0;let bag=[...Array(n).keys()].filter(i=>!(first&&i===0));
-  do{for(let i=bag.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[bag[i],bag[j]]=[bag[j],bag[i]]}}while(bag[0]===G.thOrd[G.thOrd.length-1]);G.thOrd.push(...bag)}// shuffled bags: every theme once per cycle, never twice in a row
+function artFor(th,k){const key=th.id+k+(HQ?'':'l');if(ART[key]!==undefined)return ART[key];ART[key]=null;const im=new Image();im.decoding='async';im.onload=()=>{ART[key]=im;if(th===TH)paintArt()};im.src='art/hd/'+th.id+'-'+k+(HQ?'':'-lq')+'.webp';return null}
+// HD backdrop: ONE cover-fit image, drawn once at native device resolution into a static layer (no per-frame redraw, no second copy)
+const ARTC=[$('art0'),$('art1')];let artF=0;
+function artKey(){return innerHeight>innerWidth*1.1?'port':'land'}
+function paintArt(cv){cv=cv||ARTC[artF];const dpr=devicePixelRatio||1,iw=innerWidth,ih=innerHeight,cap=HQ?3840:1280,f=Math.min(dpr,cap/Math.max(iw,ih)),w=Math.round(iw*f),h=Math.round(ih*f);
+ if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h}const c=cv.getContext('2d'),k=artKey(),im=artFor(TH,k);c.fillStyle='#0b0618';c.fillRect(0,0,w,h);if(!im)return;
+ c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';const s=Math.max(w/im.width,h/im.height),dw=im.width*s,dh=im.height*s;c.drawImage(im,(w-dw)/2,(h-dh)/2,dw,dh)}
+function themeIndex(level){if(!G||level<=1)return 0;const n=THEMES.length;if(!Array.isArray(G.thOrd)||G.thOrd[0]!==0)G.thOrd=[0];
+ while(G.thOrd.length<level){const last=G.thOrd[G.thOrd.length-1],first=G.thOrd.length===1;let bag=[...Array(n).keys()].filter(i=>!(first&&i===0));
+  for(let i=bag.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[bag[i],bag[j]]=[bag[j],bag[i]]}
+  if(bag[0]===last){const j=1+((Math.random()*(bag.length-1))|0);[bag[0],bag[j]]=[bag[j],bag[0]]}G.thOrd.push(...bag)}// shuffled bags: every theme once per cycle, never twice in a row
  return G.thOrd[level-1]}
 // tinted frame glow per theme
 const FGT={};function frameGlow(){const k=TH.id;if(FGT[k])return FGT[k];const c=mk(DW,DW),x=c.getContext('2d');x.drawImage(FRAMEG,0,0);x.globalCompositeOperation='source-atop';x.globalAlpha=.75;x.fillStyle=TH.grade;x.fillRect(0,0,DW,DW);return FGT[k]=c}
 function hexA(h,a){return h+Math.round(a*255).toString(16).padStart(2,'0')}
-function setBg(level){const port=innerHeight>innerWidth*1.1,h=port?480:270,w=Math.max(1,Math.round(h*innerWidth/innerHeight));
+function setBg(level){setBg0(level);paintArt()}
+function setBg0(level){const port=innerHeight>innerWidth*1.1,h=port?480:270,w=Math.max(1,Math.round(h*innerWidth/innerHeight));
  const ni=themeIndex(level||1),changed=ni!==thI;
- if(changed&&thI>=0&&BG.width>1){PREV.width=BG.width;PREV.height=BG.height;pvx.drawImage(BG,0,0);trans=1}
+ const swap=changed&&thI>=0;
  if(BG.width!==w||BG.height!==h){BG.width=w;BG.height=h;gx.imageSmoothingEnabled=false}
  BG.style.filter='none';
- if(changed||!AMB.length){thI=ni;TH=THEMES[ni];document.documentElement.style.setProperty('--acc',TH.grade);document.documentElement.style.setProperty('--accA',hexA(TH.grade,.55));
+ if(changed||!AMB.length){thI=ni;TH=THEMES[ni];
+  if(swap){const o=ARTC[artF];artF^=1;const nc=ARTC[artF];paintArt(nc);nc.style.zIndex=-1;o.style.zIndex=-2;nc.style.clipPath='circle(0% at 50% '+(port?42:50)+'%)';nc.style.visibility='visible';trans=1}
+  if(G){const nx=THEMES[themeIndex((level||1)+1)];artFor(nx,artKey())}// prefetch only the next themedocument.documentElement.style.setProperty('--acc',TH.grade);document.documentElement.style.setProperty('--accA',hexA(TH.grade,.55));
   if(changed&&level>1){const e=$('theme');if(e){e.innerHTML='<small>Level '+level+'</small>'+TH.name;e.classList.remove('on');void e.offsetWidth;e.classList.add('on');clearTimeout(thName);thName=setTimeout(()=>e.classList.remove('on'),2600)}}}
  const lo=!HQ,n=v=>Math.round(v*(lo?.45:1));
  stars=Array.from({length:n(60)},()=>({x:Math.random()*w,y:Math.random()*h*.55,p:Math.random()*6}));
@@ -484,11 +493,8 @@ function setBg(level){const port=innerHeight>innerWidth*1.1,h=port?480:270,w=Mat
   if(a==='ripples')add('rip',14,()=>({y:h*rnd(.72,.98)}));}}
 let bgT=0;function drawArt(ctx,im,w,h,ox,oy,sc){const s=Math.max(w/im.width,h/im.height)*(sc||1),dw=im.width*s,dh=im.height*s;ctx.drawImage(im,Math.round((w-dw)/2+ox),Math.round((h-dh)/2+oy),Math.round(dw),Math.round(dh))}
 function renderBg(dt){bgT+=dt;if(G&&G.lit)G.lit.a=Math.max(0,G.lit.a-dt*2.2);if(bgT<1/30)return;const fd=bgT;bgT=0;const t=now,w=BG.width,h=BG.height,port=h>w,k=port?'port':'land';
- const im=artFor(TH,k)||artFor(TH,port?'land':'port');
- gx.globalCompositeOperation='source-over';gx.globalAlpha=1;gx.fillStyle='#0b0618';gx.fillRect(0,0,w,h);
- // parallax: far layer drifts slowly; near layer (edges) drifts more, so the scene breathes
- const px=Math.sin(t*.13)*3,py=Math.sin(t*.09)*1.5;
- if(im){drawArt(gx,im,w,h,px*.4,py*.4,1.04);if(HQ){gx.save();gx.beginPath();gx.rect(0,h*.62,w,h);gx.rect(0,0,w*.2,h);gx.rect(w*.8,0,w*.2,h);gx.clip();gx.globalAlpha=.55;drawArt(gx,im,w,h,px*1.6,py*1.2+1,1.07);gx.restore();gx.globalAlpha=1}}
+ // the painted backdrop lives on the static #art layer; this canvas carries ambient overlays only
+ gx.globalCompositeOperation='source-over';gx.globalAlpha=1;gx.clearRect(0,0,w,h);
  const A=TH.amb;gx.globalCompositeOperation='lighter';
  if(A.includes('shafts')){const sh=.05+.03*Math.sin(t*.7);gx.fillStyle=TH.shaft||'#b9a0ff';for(let q=0;q<3;q++){gx.globalAlpha=sh*(1-q*.25);gx.beginPath();const x0=w*(.42+q*.06)+Math.sin(t*.3+q)*4;gx.moveTo(x0,0);gx.lineTo(x0+w*.05,0);gx.lineTo(x0+w*.22+q*10,h);gx.lineTo(x0+w*.1,h);gx.fill()}gx.globalAlpha=1}
  if(A.includes('aurora')){for(let b=0;b<(HQ?3:2);b++)for(let x=0;x<w;x+=2){const y0=h*(.08+b*.07)+Math.sin(x*.02+t*.5+b*2)*h*.05+Math.sin(x*.05-t*.8)*h*.015,L=h*(.12+.06*Math.sin(x*.03+t+b)),a=.10+.08*Math.sin(x*.04+t*1.3+b);gx.globalAlpha=Math.max(0,a);gx.fillStyle=b===1?'#7a5aff':'#3affb0';gx.fillRect(x,y0,2,L);gx.globalAlpha=Math.max(0,a*1.4);gx.fillStyle='#d0fff0';gx.fillRect(x,y0+L-2,2,1)}gx.globalAlpha=1}
@@ -518,8 +524,9 @@ function renderBg(dt){bgT+=dt;if(G&&G.lit)G.lit.a=Math.max(0,G.lit.a-dt*2.2);if(
  const bk=TH.lite?.55:.3;gx.globalAlpha=bk;gr=gx.createRadialGradient(bcx,bcy,Math.min(w,h)*.18,bcx,bcy,Math.min(w,h)*.62);gr.addColorStop(0,'#0a0614');gr.addColorStop(1,'rgba(10,6,20,0)');gx.fillStyle=gr;gx.fillRect(0,0,w,h);
  gx.globalAlpha=TH.lite?.45:.35;const vg=gx.createRadialGradient(w/2,h/2,Math.min(w,h)*.3,w/2,h/2,Math.max(w,h)*.75);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'#000');gx.fillStyle=vg;gx.fillRect(0,0,w,h);
  // swirl transition: previous theme spins and shrinks into a closing iris
- if(trans>0){trans=Math.max(0,trans-fd/1.3);const p=1-trans,e=p*p*(3-2*p);gx.save();gx.beginPath();gx.rect(0,0,w,h);gx.arc(bcx,bcy,Math.max(w,h)*1.1*e,0,6.283,true);gx.clip('evenodd');
-  gx.translate(bcx,bcy);gx.rotate(e*1.4);gx.scale(1+e*.5,1+e*.5);gx.globalAlpha=1-e*.6;gx.drawImage(PREV,-w/2,-h/2,w,h);gx.restore();
+ if(trans>0){trans=Math.max(0,trans-fd/1.3);const p=1-trans,e=p*p*(3-2*p),nc=ARTC[artF],oc=ARTC[artF^1];
+  if(trans>0){nc.style.clipPath='circle('+(e*120).toFixed(2)+'% at 50% '+(port?42:50)+'%)';oc.style.transform='rotate('+(e*1.4)+'rad) scale('+(1+e*.5)+')';oc.style.opacity=1-e*.6}
+  else{nc.style.clipPath='none';oc.style.visibility='hidden';oc.style.transform='none';oc.style.opacity=1}
   gx.globalCompositeOperation='lighter';gx.globalAlpha=(1-p)*.8;gx.strokeStyle=TH.grade;gx.lineWidth=3;gx.beginPath();gx.arc(bcx,bcy,Math.max(w,h)*1.1*e,0,6.283);gx.stroke();
   for(let i=0;i<(HQ?24:10);i++){const a=i/(HQ?24:10)*6.283+e*4,r=Math.max(w,h)*1.1*e;gx.fillStyle='#ffffff';gx.fillRect((bcx+Math.cos(a)*r)|0,(bcy+Math.sin(a)*r)|0,2,2)}gx.globalCompositeOperation='source-over'}
  gx.globalAlpha=1}
@@ -594,7 +601,7 @@ function pollPad(dt){const ps=navigator.getGamepads?navigator.getGamepads():[];l
 let padHoldSwap=false;
 addEventListener('gamepadconnected',()=>{padMode=true;document.body.classList.add('pad');setFocus()});
 // ===== loop =====
-let last=performance.now(),fpsA=0,fpsN=0,lowS=0;function setQ(){HQ=SAVE.set.q==='high'||(SAVE.set.q==='auto'&&!autoLow)}setQ();window.__fps=60;
+let last=performance.now(),fpsA=0,fpsN=0,lowS=0;function setQ(){const o=HQ;HQ=SAVE.set.q==='high'||(SAVE.set.q==='auto'&&!autoLow);if(o!==HQ)paintArt()}setQ();window.__fps=60;
 function frame(ts){let dt=Math.min(.05,(ts-last)/1000);last=ts;fpsA+=dt;fpsN++;if(fpsA>1){window.__fps=Math.round(fpsN/fpsA);fpsA=0;fpsN=0;if(SAVE.set.q==='auto'&&!paused&&!document.hidden){if(window.__fps<48)lowS++;else lowS=0;if(lowS>=2&&!autoLow){autoLow=true;setQ()}}}
  pollPad(dt);if(G&&G.slow>0&&!paused){G.slow-=dt;dt*=.35}if(!paused)update(dt);else now+=0;render();renderBg(dt);requestAnimationFrame(frame)}
 // logo
